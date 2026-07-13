@@ -98,11 +98,15 @@ def simulate_llm_agent(row):
     issues = []
     recommendations = []
     
+    # Calculate averages for comparison (FIXED: compare scalars, not lists)
+    recent_demand_avg = np.mean(row['demand_history'][-7:]) if len(row['demand_history']) >= 7 else np.mean(row['demand_history'])
+    past_demand_avg = np.mean(row['demand_history'][:-7]) if len(row['demand_history']) > 7 else np.mean(row['demand_history'])
+    
     # Flag potential issues
     if row['current_stock'] < row['avg_daily_demand'] * 2:
         issues.append("Critical stock level - risk of stockout within 2 days")
     
-    if row['demand_history'][-7:] > np.mean(row['demand_history'][:-7]) * 1.5:
+    if recent_demand_avg > past_demand_avg * 1.5:
         issues.append("Recent demand spike - consider increasing safety stock")
     
     if row['lead_time_days'] > 10:
@@ -112,7 +116,8 @@ def simulate_llm_agent(row):
     if issues:
         quantity_to_order = max(0, row['reorder_point_classical'] - row['current_stock'])
         recommendations.append(f"Order {int(quantity_to_order)} units immediately")
-        recommendations.append("Consider expediting shipment due to long lead time")
+        if row['lead_time_days'] > 10:
+            recommendations.append("Consider expediting shipment due to long lead time")
     
     return {
         "issues": issues,
@@ -130,8 +135,12 @@ if 'llm_results' not in st.session_state:
 
 # Create action items
 action_df = df[df['action_needed']].copy()
-action_df['llm_issues'] = [r['issues'] for r in st.session_state.llm_results if any(r['issues'])][:len(action_df)]
-action_df['llm_recommendations'] = [r['recommendations'] for r in st.session_state.llm_results if any(r['recommendations'])][:len(action_df)]
+# Ensure we don't exceed available results
+min_len = min(len(action_df), len(st.session_state.llm_results))
+filtered_llm_results = [r for r in st.session_state.llm_results if r['issues']]
+action_df = action_df.head(min_len)
+action_df['llm_issues'] = [r['issues'] for r in filtered_llm_results[:min_len]]
+action_df['llm_recommendations'] = [r['recommendations'] for r in filtered_llm_results[:min_len]]
 
 # Main dashboard
 col1, col2, col3, col4 = st.columns(4)
@@ -251,7 +260,7 @@ with col2:
         "summary": {
             "total_skus": len(df),
             "action_required": len(action_df),
-            "stockout_risk_percentage": len(action_df)/len(df)*100
+            "stockout_risk_percentage": len(action_df)/len(df)*100 if len(df) > 0 else 0
         },
         "actions": action_df.to_dict('records')
     }
