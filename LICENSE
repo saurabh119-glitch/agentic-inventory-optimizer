@@ -1,3 +1,14 @@
+
+---
+
+## 🔗 **5 GitHub Gists (Key Code Snippets)**
+
+### **Gist 1: Classical Inventory Formulas**
+```python
+# Classical safety stock and reorder point calculation
+z_score = 1.65  # 95% service level
+safety_stock = z_score * std_demand * np.sqrt(lead_time)
+reorder_point = (avg_demand * lead_time) + safety_stock
 MIT License
 
 Copyright (c) 2026 saurabh119-glitch
