@@ -2,3 +2,21 @@ streamlit>=1.30.0
 pandas>=1.5.0
 numpy>=1.24.0
 plotly>=5.18.0
+``` |
+| `LICENSE` | MIT License (GitHub auto-generates if you select "MIT" during repo creation) |
+| `screenshots/dashboard.png` | Run `streamlit run app.py` locally → take screenshot → save in `screenshots/` folder |
+
+> 💡 **Pro Tip**: Use GitHub’s web interface to upload files:
+> - Click **"Add file" → "Upload files"**
+> - Drag & drop your files
+
+### **3. Link Gists in README**
+In your `README.md`, add a section:
+
+```markdown
+## 🔗 Key Code Snippets (Gists)
+
+- [Classical Inventory Formulas]({{https://gist.github.com/saurabh119-glitch/dc2fc965ff99f1cff9b088f10ba18eba}})
+- [LLM Agent Logic]({{https://gist.github.com/saurabh119-glitch/70c0b16fe6f56e713ad7be8cd1160ff0}})
+- [Synthetic Data Generator]({{https://gist.github.com/saurabh119-glitch/7f91c0a57c46245af65ff170a86d1493}})
+- [Action Prioritization]({{https://gist.github.com/saurabh119-glitch/d6b0749e4104f154df507e64188dca6f}})
