@@ -13,6 +13,12 @@ An AI-powered inventory optimization system that combines classical inventory fo
 - 📋 Priority-ranked action items with ROI impact
 - 📤 Exportable reports (CSV/JSON)
 
+## 🔗 Key Code Snippets (Gists)
+
+- [Classical Inventory Formulas](https://gist.github.com/saurabh119-glitch/dc2fc965ff99f1cff9b088f10ba18eba)
+- [LLM Agent Logic](https://gist.github.com/saurabh119-glitch/70c0b16fe6f56e713ad7be8cd1160ff0)
+- [Synthetic Data Generator](https://gist.github.com/saurabh119-glitch/7f91c0a57c46245af65ff170a86d1493)
+- [Action Prioritization](https://gist.github.com/saurabh119-glitch/d6b0749e4104f154df507e64188dca6f)
 ## Installation
 ```bash
 pip install -r requirements.txt
