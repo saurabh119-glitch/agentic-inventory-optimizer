@@ -51,7 +51,7 @@ def generate_synthetic_data(n_skus=50, volatility=0.3):
         cost = np.random.uniform(10, 200)
         current_stock = np.random.uniform(base_demand * 0.5, base_demand * 2)
         
-        # Generate 90 days of demand history with volatility
+        # Generate 90 days of demand history
         demand_history = []
         for day in range(90):
             daily_demand = base_demand + np.random.normal(0, base_demand * volatility)
@@ -98,9 +98,14 @@ def simulate_llm_agent(row):
     issues = []
     recommendations = []
     
-    # Calculate averages for comparison (FIXED: compare scalars, not lists)
-    recent_demand_avg = np.mean(row['demand_history'][-7:]) if len(row['demand_history']) >= 7 else np.mean(row['demand_history'])
-    past_demand_avg = np.mean(row['demand_history'][:-7]) if len(row['demand_history']) > 7 else np.mean(row['demand_history'])
+    # Handle edge case: short demand history
+    demand_history = row['demand_history']
+    if len(demand_history) < 8:
+        recent_demand_avg = np.mean(demand_history)
+        past_demand_avg = np.mean(demand_history)
+    else:
+        recent_demand_avg = np.mean(demand_history[-7:])
+        past_demand_avg = np.mean(demand_history[:-7])
     
     # Flag potential issues
     if row['current_stock'] < row['avg_daily_demand'] * 2:
@@ -133,14 +138,16 @@ if 'llm_results' not in st.session_state:
         llm_results.append(result)
     st.session_state.llm_results = llm_results
 
-# Create action items
+# Create action items (fixed length matching)
 action_df = df[df['action_needed']].copy()
-# Ensure we don't exceed available results
-min_len = min(len(action_df), len(st.session_state.llm_results))
-filtered_llm_results = [r for r in st.session_state.llm_results if r['issues']]
-action_df = action_df.head(min_len)
-action_df['llm_issues'] = [r['issues'] for r in filtered_llm_results[:min_len]]
-action_df['llm_recommendations'] = [r['recommendations'] for r in filtered_llm_results[:min_len]]
+if len(action_df) > 0:
+    # Get LLM results only for action-needed SKUs
+    action_indices = df[df['action_needed']].index
+    action_llm_results = [st.session_state.llm_results[i] for i in action_indices]
+    
+    # Add LLM data to action_df
+    action_df['llm_issues'] = [r['issues'] for r in action_llm_results]
+    action_df['llm_recommendations'] = [r['recommendations'] for r in action_llm_results]
 
 # Main dashboard
 col1, col2, col3, col4 = st.columns(4)
